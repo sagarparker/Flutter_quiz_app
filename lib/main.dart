@@ -1,66 +1,82 @@
 import 'package:flutter/material.dart';
 
-import './question.dart';
-import './answer.dart';
+import './quiz.dart';
+import './result.dart';
 
 void main() {
-  runApp(MyFirstApp());
+  runApp(QuizApp());
 }
 
-class MyFirstApp extends StatefulWidget {
+class QuizApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _MyFirstAppState();
+    return _QuizState();
   }
 }
 
-class _MyFirstAppState extends State<MyFirstApp> {
-  var _questionIndex = 0;
+class _QuizState extends State<QuizApp> {
+  final _questions = const [
+    {
+      'questionText': 'What is your fav color?',
+      'answer': [
+        {'text': 'Red', 'score': 7},
+        {'text': 'Green', 'score': 4},
+        {'text': 'Blue', 'score': 2},
+      ]
+    },
+    {
+      'questionText': 'What is your fav animal?',
+      'answer': [
+        {'text': 'Cat', 'score': 7},
+        {'text': 'Dog', 'score': 4},
+        {'text': 'Fox', 'score': 2},
+      ]
+    },
+    {
+      'questionText': 'What is your fav sitcom?',
+      'answer': [
+        {'text': 'The office', 'score': 7},
+        {'text': 'BBT', 'score': 4},
+        {'text': 'Parks & Rec', 'score': 2},
+      ]
+    },
+  ];
 
-  void answerQuestion() {
+  var _questionIndex = 0;
+  var _totalScore = 0;
+
+  void _resetQuiz() {
     setState(() {
-      _questionIndex++;
+      _questionIndex = 0;
+      _totalScore = 0;
     });
-    print(_questionIndex);
+  }
+
+  void _answerQuestion(int score) {
+    _totalScore = _totalScore + score;
+    setState(() {
+      _questionIndex = _questionIndex + 1;
+    });
+    if (_questionIndex < _questions.length) {
+      print("Answer chosen");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    const questions = [
-      {
-        'questionText': 'What\'s your fav color?',
-        'answers': ['Black', 'Red', 'White', 'Blue']
-      },
-      {
-        'questionText': 'What\'s your fav animal?',
-        'answers': ['Tiger', 'Lion', 'Horse', 'Fox']
-      },
-      {
-        'questionText': 'What\'s your fav F1 driver?',
-        'answers': [
-          'Charles Leclerc',
-          'George Russel',
-          'Danniel Riccardo',
-          'Lewis Hamilton'
-        ]
-      },
-    ];
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('My First app'),
+          title: Text("Flutter Quiz"),
+          backgroundColor: Colors.blue,
         ),
-        body: Column(
-          children: [
-            Question(
-              questions[_questionIndex]['questionText'],
-            ),
-            ...(questions[_questionIndex]['answers'] as List<String>)
-                .map((answer) {
-              return Answer(answerQuestion, answer);
-            }).toList()
-          ],
-        ),
+        body: _questionIndex < _questions.length
+            ? Quiz(
+                answerQuestion: _answerQuestion,
+                questionIndex: _questionIndex,
+                questions: _questions,
+              )
+            : Result(_totalScore, _resetQuiz),
       ),
     );
   }
